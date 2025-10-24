@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>🍫 과자를 잡아라! </title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #fff8ee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: "Pretendard", sans-serif;
+            touch-action: manipulation;
+            -ms-touch-action: manipulation;
+        }
+
+        h1 {
+            color: #5e3023;
+            margin-bottom: 20px;
+        }
+
+        #game-area {
+            position: relative;
+            width: 200px;
+            height: 400px;
+            background: #fff4e6;
+            border: 3px solid #d3b89f;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        #ppr {
+            position: absolute;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 150px;
+            background: linear-gradient(to bottom, #4e2a18 70%, #d0a57b 70%);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .touch-point {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 120, 0, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: pop 0.4s ease-out forwards;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        #boundary-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: red;
+            display: none;
+        }
+
+        #result-screen {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #result-screen p {
+            font-size: 18px;
+            color: #4e2a18;
+            margin-bottom: 10px;
+        }
+
+        #result-screen button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            background-color: #8b4513;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🍫 과자를 잡아라!</h1>
+
+    <div id="game-area">
+        <div id="ppr"></div>
+        <div id="boundary-line"></div>
+    </div>
+
+    <div id="result-screen">
+        <p id="result-text"></p>
+        <button id="retry-btn">다시하기</button>
+        <button id="share-btn">공유하기</button>
+    </div>
+
+    <script>
+        const PPR_WIDTH = 10;
+        const PPR_HEIGHT = 200;
+        const CHOCO_RATIO = 0.8;
+
+        const gameArea = document.getElementById('game-area');
+        const ppr = document.getElementById('ppr');
+        const boundaryLine = document.getElementById('boundary-line');
+        const resultScreen = document.getElementById('result-screen');
+        const resultText = document.getElementById('result-text');
+        const retryBtn = document.getElementById('retry-btn');
+        const shareBtn = document.getElementById('share-btn');
+
+        let animationFrame;
+        let startTime;
+        let isFalling = false;
+        let lastScore = 0;
+        const fallSpeed = 220 * 2.5;
+        const totalHeight = 400;
+
+        ppr.style.width = `${PPR_WIDTH}px`;
+        ppr.style.height = `${PPR_HEIGHT}px`;
+        ppr.style.background = `linear-gradient(to bottom, #4e2a18 ${CHOCO_RATIO * 100}%, #d0a57b ${CHOCO_RATIO * 100}%)`;
+
+        function startGame() {
+            resultScreen.style.display = 'none';
+            ppr.style.top = `-${PPR_HEIGHT}px`;
+            ppr.style.display = 'block';
+            boundaryLine.style.top = `${-PPR_HEIGHT + PPR_HEIGHT * CHOCO_RATIO}px`;
+            boundaryLine.style.display = 'block';
+            isFalling = false;
+            resultText.innerText = '';
+
+            setTimeout(() => { boundaryLine.style.display = 'none'; }, 500);
+
+            const randomDelay = 1000 + Math.random() * 2000;
+            setTimeout(() => {
+                startTime = null;
+                isFalling = true;
+                requestAnimationFrame(fall);
+            }, randomDelay);
+        }
+
+        function fall(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = (timestamp - startTime) / 1000;
+            const distance = elapsed * fallSpeed;
+
+            if (distance < totalHeight) {
+                ppr.style.top = `${distance - PPR_HEIGHT}px`;
+                animationFrame = requestAnimationFrame(fall);
+            } else {
+                ppr.style.top = `${totalHeight - PPR_HEIGHT}px`;
+                isFalling = false;
+                endGame('놓쳤어요! 😭', 0);
+            }
+        }
+
+        function handleTouch(e) {
+            if (!isFalling) return;
+
+            const touch = e.touches ? e.touches[0] : e;
+            const clickX = touch.clientX;
+            const clickY = touch.clientY;
+
+            const pprRect = ppr.getBoundingClientRect();
+
+            const effect = document.createElement('div');
+            effect.classList.add('touch-point');
+            effect.style.left = `${clickX - gameArea.getBoundingClientRect().left}px`;
+            effect.style.top = `${clickY - gameArea.getBoundingClientRect().top}px`;
+            gameArea.appendChild(effect);
+            setTimeout(() => { effect.remove(); }, 400);
+
+            if (clickX < pprRect.left || clickX > pprRect.right) {
+                endGame('과자를 벗어났어요! ❌', 0, clickX, clickY);
+                return;
+            }
+
+            const boundaryY = pprRect.top + PPR_HEIGHT * CHOCO_RATIO;
+            if (pprRect.top < clickY && clickY < boundaryY) {
+                endGame('초코를 잡았어요! ❌', 0, clickX, clickY);
+            } else if (clickY < pprRect.top) {
+                endGame('너무 늦었어요! 😢', 0, clickX, clickY);
+            } else if (clickY > pprRect.bottom) {
+                endGame('너무 빨랐어요! 😢', 0, clickX, clickY);
+            } else {
+                const distance = Math.abs(clickY - boundaryY);
+                const score = Math.max(0, 100 - distance);
+                endGame(`🎯 성공! 경계까지 ${Math.round(distance)}px → ${Math.round(score)}점`, score, clickX, clickY);
+            }
+        }
+
+        function endGame(msg, score, clickX = null, clickY = null) {
+            cancelAnimationFrame(animationFrame);
+            isFalling = false;
+            lastScore = score; // 점수 저장
+            resultText.innerText = msg;
+
+            ppr.style.display = 'block';
+
+            if (clickX !== null && clickY !== null) {
+                const touch = document.createElement('div');
+                touch.classList.add('touch-point');
+                touch.style.left = `${clickX - gameArea.getBoundingClientRect().left}px`;
+                touch.style.top = `${clickY - gameArea.getBoundingClientRect().top}px`;
+                gameArea.appendChild(touch);
+            }
+
+            resultScreen.style.display = 'block';
+        }
+
+        retryBtn.addEventListener('click', startGame);
+
+        shareBtn.addEventListener('click', () => {
+            const roundedScore = Math.round(lastScore); // 점수 반올림
+            const shareUrl = `${window.location.origin}${window.location.pathname}?score=${roundedScore}`;
+            const shareData = {
+                title: '과자를 잡아라!',
+                text: `내 점수는 ${roundedScore}점이야! 확인해봐!`,
+                url: shareUrl
+            };
+            if (navigator.share) {
+                navigator.share(shareData).catch(console.error);
+            } else {
+                prompt('이 링크를 복사해서 공유하세요:', shareUrl);
+            }
+        });
+
+
+        // 더블탭 확대 방지
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = new Date().getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // 핀치 확대 방지
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault();
+        });
+
+        startGame();
+
+        // URL에 점수 표시 (선택적)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedScore = urlParams.get('score');
+        if (sharedScore) {
+            alert(`공유된 점수: ${Math.round(sharedScore)}점!`);
+        }
+
+        gameArea.addEventListener('click', handleTouch);
+        gameArea.addEventListener('touchstart', handleTouch);
+    </script>
+</body>
+
+</html>
