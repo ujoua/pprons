@@ -265,13 +265,6 @@
 
         startGame();
 
-        // URL에 점수 표시 (선택적)
-        const urlParams = new URLSearchParams(window.location.search);
-        const sharedScore = urlParams.get('score');
-        if (sharedScore) {
-            alert(`공유된 점수: ${Math.round(sharedScore)}점!`);
-        }
-
         gameArea.addEventListener('click', handleTouch);
         gameArea.addEventListener('touchstart', handleTouch);
     </script>
