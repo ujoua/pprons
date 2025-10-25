@@ -1,0 +1,39 @@
+body {
+  font-family: "Pretendard", sans-serif;
+  background: #fff8ee;
+  color: #5e3023;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+header {
+  background: #f8e6d0;
+  width: 100%;
+  padding: 15px 0;
+}
+
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #5e3023;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #a35a2b;
+}
+
+main {
+  max-width: 600px;
+  padding: 20px;
+}
+
+footer {
+  margin-top: 40px;
+  font-size: 14px;
+  color: #8b6b50;
+}
