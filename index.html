@@ -252,7 +252,7 @@
             const roundedScore = Math.round(lastScore); // 점수 반올림
             const shareUrl = `${window.location.origin}${window.location.pathname}?score=${roundedScore}`;
             const shareData = {
-                title: '막대 과자를 잡아라! 초콜릿에 가까운 곳을 잡을 수록 점수가 올라가요!',
+                title: '막대 과자를 잡아라! 초콜릿에 가까이 잡을 수록 점수가 올라가요!',
                 text: `내 점수는 ${roundedScore}점이야!`,
                 url: shareUrl
             };
@@ -285,5 +285,6 @@
         gameArea.addEventListener('touchstart', handleTouch);
     </script>
 </body>
+
 
 </html>
