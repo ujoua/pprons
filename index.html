@@ -2,9 +2,12 @@
 <html lang="ko">
 
 <head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4750899658093754"
+        crossorigin="anonymous"></script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>🍫 과자를 잡아라! </title>
+    <title>🍫 막대 과자를 잡아라! </title>
     <style>
         html,
         body {
@@ -105,7 +108,7 @@
 </head>
 
 <body>
-    <h1>🍫 과자를 잡아라!</h1>
+    <h1>🍫 막대 과자를 잡아라!</h1>
 
     <div id="game-area">
         <div id="ppr"></div>
@@ -135,7 +138,7 @@
         let startTime;
         let isFalling = false;
         let lastScore = 0;
-        const fallSpeed = 220 * 2.5;
+        const fallSpeed = 220 * 2.5 + Math.random() * 11;
         const totalHeight = 400;
 
         ppr.style.width = `${PPR_WIDTH}px`;
@@ -151,7 +154,7 @@
             isFalling = false;
             resultText.innerText = '';
 
-            setTimeout(() => { boundaryLine.style.display = 'none'; }, 500);
+            // setTimeout(() => { boundaryLine.style.display = 'none'; }, 500);
 
             const randomDelay = 1000 + Math.random() * 2000;
             setTimeout(() => {
@@ -207,7 +210,7 @@
             } else {
                 const distance = Math.abs(clickY - boundaryY);
                 const score = Math.max(0, 100 - distance);
-                endGame(`🎯 성공! 경계까지 ${Math.round(distance)}px → ${Math.round(score)}점`, score, clickX, clickY);
+                endGame(`🎯 성공! ${Math.round(score)}점 (상위 ${Math.max(1, Math.round(distance / Math.abs(pprRect.bottom - boundaryY) * 100))}%)`, score, clickX, clickY);
             }
         }
 
@@ -236,8 +239,8 @@
             const roundedScore = Math.round(lastScore); // 점수 반올림
             const shareUrl = `${window.location.origin}${window.location.pathname}?score=${roundedScore}`;
             const shareData = {
-                title: '과자를 잡아라!',
-                text: `내 점수는 ${roundedScore}점이야! 확인해봐!`,
+                title: '막대 과자를 잡아라! 초콜릿에 가까운 곳을 잡을 수록 점수가 올라가요!',
+                text: `내 점수는 ${roundedScore}점이야!`,
                 url: shareUrl
             };
             if (navigator.share) {
