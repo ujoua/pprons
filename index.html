@@ -10,18 +10,10 @@
     <title>🍫 막대 과자를 잡아라! </title>
     <link rel="stylesheet" href="style.css" />
     <style>
-    </style>
-    <style>
         html,
         body {
             margin: 0;
             height: 100vh;
-            /* background: #fff8ee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: "Pretendard", sans-serif; */
             touch-action: manipulation;
             -ms-touch-action: manipulation;
         }
@@ -107,6 +99,58 @@
             color: white;
             background-color: #8b4513;
         }
+
+        /* ✅ 복사 모달 스타일 */
+        #share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        #share-modal .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #share-modal input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        #copy-btn {
+            background-color: #8b4513;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        #close-btn {
+            background-color: #aaa;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -134,6 +178,18 @@
         <button id="share-btn">공유하기</button>
     </div>
 
+    <!-- ✅ 복사 모달 HTML 추가 -->
+    <div id="share-modal">
+        <div class="modal-content">
+            <p style="font-size:16px; margin-bottom:10px;">이 링크를 복사해서 친구에게 보내세요!</p>
+            <input id="share-url-input" readonly />
+            <div>
+                <button id="copy-btn">복사하기</button>
+                <button id="close-btn">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const PPR_WIDTH = 10;
         const PPR_HEIGHT = 200;
@@ -151,7 +207,7 @@
         let startTime;
         let isFalling = false;
         let lastScore = 0;
-        const fallSpeed = 220 * 2.5 + Math.random() * 11;
+        const fallSpeed = 222 * 2.5 + Math.random() * 11;
         const totalHeight = 400;
 
         ppr.style.width = `${PPR_WIDTH}px`;
@@ -166,8 +222,6 @@
             boundaryLine.style.display = 'block';
             isFalling = false;
             resultText.innerText = '';
-
-            // setTimeout(() => { boundaryLine.style.display = 'none'; }, 500);
 
             const randomDelay = 1000 + Math.random() * 2000;
             setTimeout(() => {
@@ -230,9 +284,8 @@
         function endGame(msg, score, clickX = null, clickY = null) {
             cancelAnimationFrame(animationFrame);
             isFalling = false;
-            lastScore = score; // 점수 저장
+            lastScore = score;
             resultText.innerText = msg;
-
             ppr.style.display = 'block';
 
             if (clickX !== null && clickY !== null) {
@@ -248,23 +301,51 @@
 
         retryBtn.addEventListener('click', startGame);
 
+        // ✅ 공유하기 버튼 기능
         shareBtn.addEventListener('click', () => {
-            const roundedScore = Math.round(lastScore); // 점수 반올림
-            const shareUrl = `${window.location.origin}${window.location.pathname}?score=${roundedScore}`;
+            const roundedScore = Math.round(lastScore);
+            const shareUrl = `${window.location.origin}${window.location.pathname}`;
             const shareData = {
                 title: '막대 과자를 잡아라! 초콜릿에 가까이 잡을 수록 점수가 올라가요!',
                 text: `내 점수는 ${roundedScore}점이야!`,
                 url: shareUrl
             };
+
             if (navigator.share) {
-                navigator.share(shareData).catch(console.error);
+                navigator.share(shareData).catch(() => showShareModal(shareUrl));
             } else {
-                prompt('이 링크를 복사해서 공유하세요:', shareUrl);
+                showShareModal(shareUrl);
             }
         });
 
+        // ✅ 복사 모달 관련 함수
+        function showShareModal(url) {
+            const modal = document.getElementById('share-modal');
+            const input = document.getElementById('share-url-input');
+            const copyBtn = document.getElementById('copy-btn');
+            const closeBtn = document.getElementById('close-btn');
 
-        // 더블탭 확대 방지
+            input.value = url;
+            modal.style.display = 'flex';
+
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(url).then(() => {
+                    copyBtn.textContent = '복사 완료!';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        copyBtn.textContent = '복사하기';
+                    }, 800);
+                }).catch(() => {
+                    alert('복사에 실패했어요. 직접 복사해주세요.');
+                });
+            };
+
+            closeBtn.onclick = () => {
+                modal.style.display = 'none';
+            };
+        }
+
+        // 확대 방지
         let lastTouchEnd = 0;
         document.addEventListener('touchend', (e) => {
             const now = new Date().getTime();
@@ -274,17 +355,12 @@
             lastTouchEnd = now;
         }, false);
 
-        // 핀치 확대 방지
-        document.addEventListener('gesturestart', (e) => {
-            e.preventDefault();
-        });
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
 
         startGame();
-
         gameArea.addEventListener('click', handleTouch);
         gameArea.addEventListener('touchstart', handleTouch);
     </script>
 </body>
-
 
 </html>
