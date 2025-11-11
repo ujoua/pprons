@@ -330,7 +330,7 @@
             modal.style.display = 'flex';
 
             copyBtn.onclick = () => {
-                navigator.clipboard.writeText(url).then(() => {
+                navigator.clipboard.writeText(input.value).then(() => {
                     copyBtn.textContent = '복사 완료!';
                     setTimeout(() => {
                         modal.style.display = 'none';
@@ -365,6 +365,7 @@
 </body>
 
 </html>
+
 
 
 
