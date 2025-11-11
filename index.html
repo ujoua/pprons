@@ -207,7 +207,7 @@
         let startTime;
         let isFalling = false;
         let lastScore = 0;
-        const fallSpeed = 222 * 2.5 + Math.random() * 11;
+        const fallSpeed = 222 * 3.2 + Math.random() * 11;
         const totalHeight = 400;
 
         ppr.style.width = `${PPR_WIDTH}px`;
@@ -223,7 +223,7 @@
             isFalling = false;
             resultText.innerText = '';
 
-            const randomDelay = 1000 + Math.random() * 2000;
+            const randomDelay = 1000 + Math.random() * 3000;
             setTimeout(() => {
                 startTime = null;
                 isFalling = true;
@@ -365,6 +365,7 @@
 </body>
 
 </html>
+
 
 
 
