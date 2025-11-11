@@ -307,7 +307,7 @@
             const shareUrl = `${window.location.origin}${window.location.pathname}`;
             const shareData = {
                 title: '막대 과자를 잡아라! 초콜릿에 가까이 잡을 수록 점수가 올라가요!',
-                text: `내 점수는 ${roundedScore}점이야!\n`,
+                text: `내 점수는 ${roundedScore}점이야!`,
                 url: shareUrl
             };
 
@@ -325,7 +325,7 @@
             const copyBtn = document.getElementById('copy-btn');
             const closeBtn = document.getElementById('close-btn');
 
-            input.value = `막대 과자를 잡아라! 초콜릿에 가까이 잡을 수록 점수가 올라가요! - 내 점수는 ${roundedScore}점이야!\n ${url}`
+            input.value = `막대 과자를 잡아라! 초콜릿에 가까이 잡을 수록 점수가 올라가요! - 내 점수는 ${roundedScore}점이야! ${url}`
             modal.style.display = 'flex';
 
             copyBtn.onclick = () => {
@@ -364,4 +364,5 @@
 </body>
 
 </html>
+
 
